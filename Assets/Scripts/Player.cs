@@ -25,8 +25,12 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // running movement scripts
         CalculateMovement();
-        if (Input.GetKeyDown(KeyCode.Space) && Time.time > _nextFire)
+
+        // firing the gun!!
+        bool pressedSpaceAndNoCoolDown = Input.GetKeyDown(KeyCode.Space) && Time.time > _nextFire;
+        if (pressedSpaceAndNoCoolDown)
         {
             FireLaser();
         }
