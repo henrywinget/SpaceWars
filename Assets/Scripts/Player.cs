@@ -6,6 +6,8 @@ public class Player : MonoBehaviour
 {
     // public or private reference
     [SerializeField]
+    private int _health = 5;
+    [SerializeField]
     private float _speed = 3.5f;
     [SerializeField]
     private GameObject _laserPrefab;
@@ -13,13 +15,18 @@ public class Player : MonoBehaviour
     private float _fireRate = 0.2f;
     [SerializeField]
     private float _nextFire = -1f;
-
+    private SpawnManager _spawnManager;
 
     // Start is called before the first frame update
     void Start()
     {
         // take the current position and give it a new position (0, 0, 0) (x, y ,z)
         transform.position = new Vector3(0, 0, 0);
+        _spawnManager = GameObject.Find("Spawn_Manager").GetComponent<SpawnManager>();
+        if(_spawnManager == null)
+        {
+            Debug.LogError("Spawn manager is null");
+        }
     }
 
     // Update is called once per frame
@@ -33,6 +40,11 @@ public class Player : MonoBehaviour
         if (pressedSpaceAndNoCoolDown)
         {
             FireLaser();
+        }
+        // a die
+        if(_health == 0)
+        {
+            Destroy(this.gameObject);
         }
 
     }
@@ -63,8 +75,26 @@ public class Player : MonoBehaviour
     {
         // my way
         _nextFire = Time.time + _fireRate;
-        Instantiate(_laserPrefab, new Vector3(transform.position.x, transform.position.y + 0.8f, transform.position.z), Quaternion.identity);
+        Instantiate(_laserPrefab, new Vector3(transform.position.x, transform.position.y + 1.0f, transform.position.z), Quaternion.identity);
         // answer
         // Instantiate(_laserPrefab, transform.position + new Vector3(0, 0 0.8f, 0), Quaternion.identity);
     }
+
+    public bool IsAlive()
+    {
+        return _health > 0;
+    }
+    
+    public void Damage()
+    {
+        _health -= 1;
+
+        if (_health < 1)
+        {
+            // Communicate with spawn manager to stop spawning after death
+            _spawnManager.StopSpawining();
+            Destroy(this.gameObject);
+        }
+    }
+
 }
